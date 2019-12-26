@@ -1,6 +1,7 @@
 //빙고 게임 만들기 : 6개 빙고가 먼저 되면 승리
 
 #include <iostream>
+
 #include <time.h>
 
 using namespace std;
@@ -8,6 +9,20 @@ using namespace std;
 enum AI_MODE {
 	AM_EASY = 1,
 	AM_HARD
+};
+enum LINE_NUMBER {
+	LN_R1,
+	LN_R2,
+	LN_R3,
+	LN_R4,
+	LN_R5,
+	LN_C1,
+	LN_C2,
+	LN_C3,
+	LN_C4,
+	LN_C5,
+	LN_LT,
+	LN_RT
 };
 
 int main() {
@@ -47,19 +62,18 @@ int main() {
 
 
 	//AI 난이도 선택
+	int iAIMode;
 	while (true) {
 		system("cls");
 		cout << " 1. Easy" << endl;
 		cout << " 2. Hard" << endl;
 		cout << "AI 모드를 선택하세요 : ";
-		int iAIMode;
 		cin >> iAIMode;
 
 		if (iAIMode == AM_EASY || iAIMode == AM_HARD)
 			break;
 	}
-	// AI Easy 모드 : 중복되지 않은 수 중에 하나를 랜덤하게 선택
-	// AI Hard 모드 : 라인들 중에서 빙고가 될 확률이 가장 높은 라인의 숫자 중 하나를 선택
+
 	while (true) {
 		system("cls");
 		//숫자를 5X5로 출력한다.
@@ -77,6 +91,15 @@ int main() {
 		cout << "Player 빙고 완성 개수 : " << iComplete << endl << endl;
 
 		cout << "=================AI====================" << endl;
+
+		switch (iAIMode) {
+		case AM_EASY:
+			cout << "AI easy mode" << endl;
+			break;
+		case AM_HARD:
+			cout << "AI hard mode" << endl;
+			break;
+		}
 		for (int i = 0; i < 5; ++i) {
 			for (int j = 0; j < 5; ++j) {
 				if (iAIBingo[i * 5 + j] == INT_MAX) {
@@ -87,8 +110,8 @@ int main() {
 			}
 			cout << endl;
 		}
-		cout << "AI 빙고 완성 개수 : " << iAIComplete << endl;
-		if (iComplete >= 6) {
+		cout << "AI 빙고 완성 개수 : " << iAIComplete << endl << endl;
+		if (iComplete >= 6) {  // 동시에 성공했을 경우 Player 승리
 			cout << "Player 승리" << endl;
 			break;
 		}
@@ -132,6 +155,148 @@ int main() {
 				break;
 			}
 		}
+
+		//AI가 선택을 한다. AI모드에 따라 달라진다.
+			// AI Easy 모드 : 중복되지 않은 수 중에 하나를 랜덤하게 선택
+	    // 선택 안된 숫자들의 목록을 저장할 배열을 만든다.
+		int iNonSelect[25] = {};
+		int iNonSelectCount = 0;
+		// AI Hard 모드 : 라인들 중에서 빙고가 될 확률이 가장 높은 라인의 숫자 중 하나를 선택
+		int iLine = 0;
+		int iStarCount = 0;
+		int iSaveCount = 0;
+		switch (iAIMode) {
+		case AM_EASY:
+			for (int i = 0; i < 25; ++i) {
+				if (iAIBingo[i] != INT_MAX) {
+					iNonSelect[iNonSelectCount] = iAIBingo[i];
+					++iNonSelectCount;
+				}
+			}
+			iInput = iNonSelect[rand() % iNonSelectCount];
+			
+			break;
+		case AM_HARD:
+			for (int i = 0; i < 5; ++i) {
+
+				//Row 별 개수 검사
+				iStarCount = 0;
+				for (int j = 0; j < 5; ++j) {
+					if (iAIBingo[5 * i + j] == INT_MAX) {
+						++iStarCount;
+					}
+				}
+				if (iStarCount >= iSaveCount && iStarCount < 5) {
+					iSaveCount = iStarCount;
+					iLine = i; // Row 0~4
+				}
+				//column 별 개수 검사
+				iStarCount = 0;
+				for (int j = 0; j < 5; ++j) {
+					if (iAIBingo[i + j * 5] == INT_MAX) {
+						++iStarCount;
+					}
+				}
+				if (iStarCount >= iSaveCount && iStarCount < 5) {
+					iSaveCount = iStarCount;
+					iLine = i + 5; //column 5~9
+				}
+			}
+
+			iStarCount = 0;
+			for (int i = 0; i < 5; ++i) {
+				if (iAIBingo[i * 6] == INT_MAX) {
+					++iStarCount;
+				}
+			}
+			if (iStarCount >= iSaveCount && iStarCount < 5) {
+				iSaveCount = iStarCount;
+				iLine = LN_LT;
+			}
+
+			iStarCount = 0;
+			for (int i = 0; i < 5; ++i) {
+				if (iAIBingo[4 + i * 4] == INT_MAX) {
+					++iStarCount;
+				}
+			}
+			if (iStarCount >= iSaveCount && iStarCount < 5) {
+				iSaveCount = iStarCount;
+				iLine = LN_RT;
+			}
+
+			switch (iLine) {
+			case LN_R1:
+			case LN_R2:
+			case LN_R3:
+			case LN_R4:
+			case LN_R5:// 가로 줄 일 경우
+				for (int i = 0; i < 5; ++i) {
+					if (iAIBingo[iLine * 5 + i] != INT_MAX) {
+						iNonSelect[iNonSelectCount] = iAIBingo[iLine * 5 + i];
+						++iNonSelectCount;
+					}
+				}
+				iInput = iNonSelect[rand() % iNonSelectCount];
+				break;
+			case LN_C1:
+			case LN_C2:
+			case LN_C3:
+			case LN_C4:
+			case LN_C5://세로 줄 일 경우
+				for (int i = 0; i < 5; ++i) {
+					if (iAIBingo[(iLine - 5) + 5 * i] != INT_MAX) {
+						iNonSelect[iNonSelectCount] = iAIBingo[(iLine - 5) + 5 * i];
+						++iNonSelectCount;
+					}
+				}
+				iInput = iNonSelect[rand() % iNonSelectCount];
+				break;
+			case LN_LT:
+				for (int i = 0; i < 5; ++i)
+				{
+					if (iAIBingo[6 * i] != INT_MAX) {
+						iNonSelect[iNonSelectCount] = iAIBingo[6 * i];
+						++iNonSelectCount;
+					}
+				}
+				iInput = iNonSelect[rand() % iNonSelectCount];
+				break;
+			case LN_RT:
+				for (int i = 0; i < 5; ++i)
+				{
+					if (iAIBingo[4 * i + 4] != INT_MAX) {
+						iNonSelect[iNonSelectCount] = iAIBingo[4 * i + 4];
+						++iNonSelectCount;
+					}
+				}
+				iInput = iNonSelect[rand() % iNonSelectCount];
+				break;// line switch
+			}
+			break; //AImode switch
+		}
+
+		cout << "AI가 선택한 수는 " << iInput << "입니다." << endl;
+		system("pause");
+
+
+		//AI가 선택한 수를 *로 변환
+		for (int i = 0; i < 25; ++i) {
+			if (iInput == iBingo[i]) {
+				iBingo[i] = INT_MAX;
+				break;
+			}
+		}
+
+
+		for (int i = 0; i < 25; ++i) {
+			if (iInput == iAIBingo[i]) {
+				iAIBingo[i] = INT_MAX;
+				break;
+			}
+		}
+
+
 
 
 		//빙고가 완성 되었는지 체크
