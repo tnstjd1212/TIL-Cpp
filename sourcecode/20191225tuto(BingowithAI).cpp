@@ -6,6 +6,23 @@
 
 using namespace std;
 
+
+
+//변수선언
+int iBingo[25] = {};
+int iAIBingo[25] = {};//빙고판
+int iTemp, idx1, idx2; // 셔플용 변수
+int iComplete = 0, iAIComplete = 0; // 완성된 빙고 라인의 개수를 저장 한다.
+int iAIMode = 0; //AI난이도 선택용 변수
+int iInput; // Player input과 AI input 을 저장하는 변수
+bool bAcc = true; //중복 확인 용 변수
+int iNonSelect[25] = {}; // AI가 선택할 수를 저장하는 배열
+int iNonSelectCount = 0; // AI가 선택할 수의 개수를 카운팅 하는 변수
+int iLine = 0;
+int iStarCount = 0;
+int iSaveCount = 0; // AI hard 모드에서 가장 성공할 확률이 높은 라인을 찾기 위한 변수 
+
+
 enum AI_MODE {
 	AM_EASY = 1,
 	AM_HARD
@@ -29,8 +46,6 @@ int main() {
 
 	srand((unsigned int)time(0));
 
-	int iBingo[25] = {};
-	int iAIBingo[25] = {};
 
 	//1~25 까지 숫자를 넣어준다.
 	for (int i = 0; i < 25; ++i) {
@@ -39,8 +54,6 @@ int main() {
 	}
 
 	//number shuffle
-	int iTemp, idx1, idx2;
-
 	for (int i = 0; i < 100; ++i) {
 		idx1 = rand() % 25;
 		idx2 = rand() % 25;
@@ -58,11 +71,9 @@ int main() {
 		iAIBingo[idx2] = iTemp;
 	}
 
-	int iComplete = 0, iAIComplete = 0; // 완성된 빙고의 개수를 저장 한다.
-
+	
 
 	//AI 난이도 선택
-	int iAIMode;
 	while (true) {
 		system("cls");
 		cout << " 1. Easy" << endl;
@@ -121,7 +132,6 @@ int main() {
 		}
 
 		cout << "숫자를 입력하세요.(0을 누르면 종료됩니다) : ";
-		int iInput;
 			cin >> iInput;
 
 		if (iInput == 0)
@@ -131,9 +141,9 @@ int main() {
 			system("pause");
 			continue;
 		}
-		bool bAcc = true; //중복 확인 용 변수
-		//중복되었다고 가정 후 숫자를 찾으면 중복 되지 않았다로 변경
 		
+		//중복되었다고 가정 후 숫자를 찾으면 중복 되지 않았다로 변경
+		bAcc = true;
 		for (int i = 0; i < 25; ++i) {
 			if (iInput == iBingo[i]) {
 				bAcc = false;
@@ -157,14 +167,13 @@ int main() {
 		}
 
 		//AI가 선택을 한다. AI모드에 따라 달라진다.
-			// AI Easy 모드 : 중복되지 않은 수 중에 하나를 랜덤하게 선택
-	    // 선택 안된 숫자들의 목록을 저장할 배열을 만든다.
-		int iNonSelect[25] = {};
-		int iNonSelectCount = 0;
+		// AI Easy 모드 : 중복되지 않은 수 중에 하나를 랜덤하게 선택
+
 		// AI Hard 모드 : 라인들 중에서 빙고가 될 확률이 가장 높은 라인의 숫자 중 하나를 선택
-		int iLine = 0;
-		int iStarCount = 0;
-		int iSaveCount = 0;
+		iNonSelectCount = 0;
+		iSaveCount = 0;
+		iLine = 0;
+		iNonSelect[25] = {};
 		switch (iAIMode) {
 		case AM_EASY:
 			for (int i = 0; i < 25; ++i) {
@@ -173,7 +182,11 @@ int main() {
 					++iNonSelectCount;
 				}
 			}
-			iInput = iNonSelect[rand() % iNonSelectCount];
+			if (iNonSelectCount != 0) {
+				iInput = iNonSelect[rand() % iNonSelectCount];
+			}
+			else
+				cout << "선택할 수 있는 수가 없습니다.";
 			
 			break;
 		case AM_HARD:
@@ -237,7 +250,12 @@ int main() {
 						++iNonSelectCount;
 					}
 				}
-				iInput = iNonSelect[rand() % iNonSelectCount];
+				if (iNonSelectCount != 0) {
+					iInput = iNonSelect[rand() % iNonSelectCount];
+				}
+				else
+					cout << "선택할 수 있는 수가 없습니다.";
+
 				break;
 			case LN_C1:
 			case LN_C2:
@@ -250,7 +268,12 @@ int main() {
 						++iNonSelectCount;
 					}
 				}
-				iInput = iNonSelect[rand() % iNonSelectCount];
+				if (iNonSelectCount != 0) {
+					iInput = iNonSelect[rand() % iNonSelectCount];
+				}
+				else
+					cout << "선택할 수 있는 수가 없습니다.";
+
 				break;
 			case LN_LT:
 				for (int i = 0; i < 5; ++i)
@@ -260,7 +283,12 @@ int main() {
 						++iNonSelectCount;
 					}
 				}
-				iInput = iNonSelect[rand() % iNonSelectCount];
+				if (iNonSelectCount != 0) {
+					iInput = iNonSelect[rand() % iNonSelectCount];
+				}
+				else
+					cout << "선택할 수 있는 수가 없습니다.";
+
 				break;
 			case LN_RT:
 				for (int i = 0; i < 5; ++i)
@@ -270,7 +298,12 @@ int main() {
 						++iNonSelectCount;
 					}
 				}
-				iInput = iNonSelect[rand() % iNonSelectCount];
+				if (iNonSelectCount != 0) {
+					iInput = iNonSelect[rand() % iNonSelectCount];
+				}
+				else
+					cout << "선택할 수 있는 수가 없습니다.";
+
 				break;// line switch
 			}
 			break; //AImode switch
