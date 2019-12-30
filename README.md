@@ -17,3 +17,7 @@ Tutorial(Bingo AI is complete)
 Separate variable declaration in Bingo game
 Study structure, string functions
 Make tutorial student management program(not complete)
+
+##20191230
+Student management program complete
+Create  text rpg (Not complete)
