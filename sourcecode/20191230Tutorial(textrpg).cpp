@@ -20,29 +20,113 @@ enum MAP_TYPE {
 	MT_BACK
 };
 enum JOB {
-	J_KNIGHT = 1,
+	J_NONE,
+	J_KNIGHT,
 	J_ARCHER,
-	J_WIZARD
+	J_WIZARD,
+	J_END   // END값을 코드에 추가함으로써 직업을 나중에 추가 해도 다른 코드를 변경할 필요 없음
 };
 
-struct _tagCharacter {
+struct _tagPlayer {
+	int iExp;
+	int iLevel;
 	char strName[NAME_SIZE];
+	JOB eJob;
 	char strJob[NAME_SIZE];
-	int iJobcode;
 	int iHP;
+	int iHPMax;
 	int iMP;
-	int iAttack;
-	int iDeffend;
+	int iMPMax;
+	int iAttackMin;
+	int iAttackMax;
+	int iArmor;
+};
+
+struct _tagMonster
+{
+	char strName[NAME_SIZE];
+	int iHP;
+	int iHPMax;
+	int iMP;
+	int iMPMax;
+	int iGetExp;
+	int iGetGold;
+	int iLevel;
+	int iAttackMin;
+	int iAttackMax;
+	int iArmor;
 };
 
 //변수 선언
 int iMenu;
+int iJob = J_NONE;
 
 
 
 int main() {
 
-	// 캐릭터 만들기 : 직업선택
+	srand((unsigned int)time(0));
+
+	// 게임시작 시 플레이어 정보 설정
+	_tagPlayer tPlayer = {};
+	tPlayer.iLevel = 1;
+	tPlayer.iExp = 0;
+	cout << "이름 : ";
+	cin.getline(tPlayer.strName, NAME_SIZE - 1);
+
+	while (iJob == J_NONE)
+	{
+		system("cls");
+		cout << "1. 기사" << endl;
+		cout << "2. 궁수" << endl;
+		cout << "3. 마법사" << endl;
+		cout << "직업을 선택하세요 : ";
+		cin >> iJob;
+
+		if (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1024, '\n');
+			continue;
+		}
+		else if (iJob <= J_NONE || iJob >= J_END)
+			iJob - J_NONE;
+	}
+
+	tPlayer.eJob = (JOB)iJob;
+	switch (tPlayer.eJob)
+	{
+	case J_KNIGHT:
+		strcpy_s(tPlayer.strJob, "기사");
+		tPlayer.iArmor = 5;
+		tPlayer.iAttackMin = 5;
+		tPlayer.iAttackMax = 10;
+		tPlayer.iHPMax = 75;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 25;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	case J_ARCHER:
+		strcpy_s(tPlayer.strJob, "궁수");
+		tPlayer.iArmor = 3;
+		tPlayer.iAttackMin = 7;
+		tPlayer.iAttackMax = 13;
+		tPlayer.iHPMax = 60;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 35;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	case J_WIZARD:
+		strcpy_s(tPlayer.strJob, "마법사");
+		tPlayer.iArmor = 1;
+		tPlayer.iAttackMin = 7;
+		tPlayer.iAttackMax = 17;
+		tPlayer.iHPMax = 55;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 55;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	}
 
 
 
