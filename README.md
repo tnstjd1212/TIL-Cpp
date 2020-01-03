@@ -21,3 +21,6 @@ Make tutorial student management program(not complete)
 ##20191230
 Student management program complete
 Create  text rpg (Not complete)
+
+##20200103
+Add making player character in textRPG
