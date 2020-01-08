@@ -24,3 +24,6 @@ Create  text rpg (Not complete)
 
 ##20200103
 Add making player character in textRPG
+
+##20200108
+Add all menu in text RPG (Will add equip item, level up system)
