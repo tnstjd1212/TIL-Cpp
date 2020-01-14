@@ -30,3 +30,9 @@ Add all menu in text RPG (Will add equip item, level up system)
 
 ##20200109
 Add equip item, unequip item, change item in text RPG (will add level up system)
+
+##20200110
+Complete text RPG
+
+##20200114
+Study pointer, function

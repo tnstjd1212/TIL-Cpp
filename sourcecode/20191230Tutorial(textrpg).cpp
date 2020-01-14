@@ -8,6 +8,7 @@ using namespace std;
 #define DESC_LENGTH 512
 #define INVENTORY_MAX 20
 #define STORE_MAX 3
+#define LEVEL_MAX 10
 
 enum MAIN_MANU {
 	MM_NONE,
@@ -105,6 +106,13 @@ struct _tagPlayer {
 	_tagInventory tInventory;
 };
 
+struct _tagLevelUpStatus {
+	int iAttackUp;
+	int iArmorUp;
+	int iHPUp;
+	int iMPUp;
+};
+
 //변수 선언
 int iMenu;
 int iBattleMenu; // 전투할때 iMenu가 사용 중이므로 선택용 변수가 하나 더 필요
@@ -119,72 +127,32 @@ _tagItem tStoreArmorArr[STORE_MAX] = {};
 bool bMonsterAlive;
 bool bPlayerAlive;
 _tagItem tItemSwap = {}; //무기를 교체할 때 swap용 item변수
+_tagLevelUpStatus tLvUpTable[J_END - 1] = {};
 
 
 int main() {
 
 	srand((unsigned int)time(0));
 
-	// 게임시작 시 플레이어 정보 설정
-	tPlayer.iLevel = 1;
-	tPlayer.iExp = 0;
-	tPlayer.tInventory.iGold = 300000;
-	cout << "이름 : ";
-	cin.getline(tPlayer.strName, NAME_SIZE - 1);
+	//레벨업에 필요한 경험치 설정
+	const int iLevelUpExp[LEVEL_MAX] = { 40, 100, 200, 500, 900, 1400, 2000, 3000, 4500, 6000 };
 
-	while (iJob == J_NONE)
-	{
-		system("cls");
-		cout << "1. 기사" << endl;
-		cout << "2. 궁수" << endl;
-		cout << "3. 마법사" << endl;
-		cout << "직업을 선택하세요 : ";
-		cin >> iJob;
+	//레벨업시 증가 하는 스탯 선언
 
-		if (cin.fail())
-		{
-			cin.clear();
-			cin.ignore(1024, '\n');
-			continue;
-		}
-		else if (iJob <= J_NONE || iJob >= J_END)
-			iJob - J_NONE;
-	}
+	tLvUpTable[J_KNIGHT - 1].iAttackUp = 5;
+	tLvUpTable[J_KNIGHT - 1].iArmorUp = 10;
+	tLvUpTable[J_KNIGHT - 1].iHPUp = 55;
+	tLvUpTable[J_KNIGHT - 1].iMPUp = 10;
 
-	tPlayer.eJob = (JOB)iJob;
-	switch (tPlayer.eJob)
-	{
-	case J_KNIGHT:
-		strcpy_s(tPlayer.strJob, "기사");
-		tPlayer.iArmor = 5;
-		tPlayer.iAttackMax = 10;
-		tPlayer.iAttackMin = 5;
-		tPlayer.iHPMax = 75;
-		tPlayer.iHP = tPlayer.iHPMax;
-		tPlayer.iMPMax = 25;
-		tPlayer.iMP = tPlayer.iMPMax;
-		break;
-	case J_ARCHER:
-		strcpy_s(tPlayer.strJob, "궁수");
-		tPlayer.iArmor = 3;
-		tPlayer.iAttackMax = 13;
-		tPlayer.iAttackMin = 7;
-		tPlayer.iHPMax = 60;
-		tPlayer.iHP = tPlayer.iHPMax;
-		tPlayer.iMPMax = 35;
-		tPlayer.iMP = tPlayer.iMPMax;
-		break;
-	case J_WIZARD:
-		strcpy_s(tPlayer.strJob, "마법사");
-		tPlayer.iArmor = 1;
-		tPlayer.iAttackMax = 17;
-		tPlayer.iAttackMin = 7;
-		tPlayer.iHPMax = 55;
-		tPlayer.iHP = tPlayer.iHPMax;
-		tPlayer.iMPMax = 55;
-		tPlayer.iMP = tPlayer.iMPMax;
-		break;
-	}
+	tLvUpTable[J_ARCHER - 1].iAttackUp = 8;
+	tLvUpTable[J_ARCHER - 1].iArmorUp = 5;
+	tLvUpTable[J_ARCHER - 1].iHPUp = 30;
+	tLvUpTable[J_ARCHER - 1].iMPUp = 30;
+
+	tLvUpTable[J_WIZARD - 1].iAttackUp = 11;
+	tLvUpTable[J_WIZARD - 1].iArmorUp = 3;
+	tLvUpTable[J_WIZARD - 1].iHPUp = 15;
+	tLvUpTable[J_WIZARD - 1].iMPUp = 50;
 
 	//몬스터 스탯 설정
 	//easy 고블린
@@ -275,6 +243,68 @@ int main() {
 	tStoreArmorArr[2].iSell = 35000;
 	tStoreArmorArr[2].iStat = 130;
 
+
+	// 게임시작 시 플레이어 정보 설정
+	tPlayer.iLevel = 1;
+	tPlayer.iExp = 0;
+	tPlayer.tInventory.iGold = 300000;
+	cout << "이름 : ";
+	cin.getline(tPlayer.strName, NAME_SIZE - 1);
+
+	while (iJob == J_NONE)
+	{
+		system("cls");
+		cout << "1. 기사" << endl;
+		cout << "2. 궁수" << endl;
+		cout << "3. 마법사" << endl;
+		cout << "직업을 선택하세요 : ";
+		cin >> iJob;
+
+		if (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1024, '\n');
+			continue;
+		}
+		else if (iJob <= J_NONE || iJob >= J_END)
+			iJob = J_NONE;
+	}
+
+	tPlayer.eJob = (JOB)iJob;
+	switch (tPlayer.eJob)
+	{
+	case J_KNIGHT:
+		strcpy_s(tPlayer.strJob, "기사");
+		tPlayer.iArmor = 5;
+		tPlayer.iAttackMax = 10;
+		tPlayer.iAttackMin = 5;
+		tPlayer.iHPMax = 75;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 25;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	case J_ARCHER:
+		strcpy_s(tPlayer.strJob, "궁수");
+		tPlayer.iArmor = 3;
+		tPlayer.iAttackMax = 13;
+		tPlayer.iAttackMin = 7;
+		tPlayer.iHPMax = 60;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 35;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	case J_WIZARD:
+		strcpy_s(tPlayer.strJob, "마법사");
+		tPlayer.iArmor = 1;
+		tPlayer.iAttackMax = 17;
+		tPlayer.iAttackMin = 7;
+		tPlayer.iHPMax = 55;
+		tPlayer.iHP = tPlayer.iHPMax;
+		tPlayer.iMPMax = 55;
+		tPlayer.iMP = tPlayer.iMPMax;
+		break;
+	}
+
 	while (true) {
 		system("cls");
 		cout << "=================메인메뉴==================" << endl;
@@ -344,7 +374,7 @@ int main() {
 					cout << "이름 : " << tPlayer.strName <<
 						"\t직업 : " << tPlayer.strJob << endl;
 					cout << "레벨 : " << tPlayer.iLevel <<
-						"\t경험치 : " << tPlayer.iExp << endl;
+						"\t경험치 : " << tPlayer.iExp << "/" << iLevelUpExp[tPlayer.iLevel - 1] << endl;
 					cout << "공격력  : " << tPlayer.iAttackMin <<
 						" - " << tPlayer.iAttackMax << "\t방어력 : " << tPlayer.iArmor << endl;
 					cout << "체력 : " << tPlayer.iHP << " / " << tPlayer.iHPMax <<
@@ -418,6 +448,26 @@ int main() {
 
 						cout << tBattleMonster.iGetExp << "의 경험치를 획득했습니다." << endl;
 						cout << tBattleMonster.iGetGold << "의 골드를 획득했습니다." << endl;
+
+						if (tPlayer.iExp >= iLevelUpExp[tPlayer.iLevel - 1]) {
+							//필요한 경험치 만큼 경험치를 차감한다.
+							tPlayer.iExp -= iLevelUpExp[tPlayer.iLevel - 1];
+							//레벨을 증가시킨다.
+							++tPlayer.iLevel;
+							cout << "레벨업 하였습니다." << endl;
+
+							//레벨업 스탯을 올려준다.
+							tPlayer.iAttackMax += tLvUpTable[tPlayer.eJob - 1].iAttackUp;
+							tPlayer.iAttackMin += tLvUpTable[tPlayer.eJob - 1].iAttackUp;
+							tPlayer.iArmor += tLvUpTable[tPlayer.eJob - 1].iArmorUp;
+							tPlayer.iHPMax += tLvUpTable[tPlayer.eJob - 1].iHPUp;
+							tPlayer.iMPMax += tLvUpTable[tPlayer.eJob - 1].iMPUp;
+
+							cout << "공격이 " << tLvUpTable[tPlayer.eJob - 1].iAttackUp << " 올랐습니다." << endl;
+							cout << "방어가 " << tLvUpTable[tPlayer.eJob - 1].iArmorUp << " 올랐습니다." << endl;
+							cout << "체력이 " << tLvUpTable[tPlayer.eJob - 1].iHPUp << " 올랐습니다." << endl;
+							cout << "마나가 " << tLvUpTable[tPlayer.eJob - 1].iMPUp << " 올랐습니다." << endl;
+						}
 
 						system("pause");
 						break;
@@ -596,7 +646,7 @@ int main() {
 				cout << "이름 : " << tPlayer.strName <<
 					"\t직업 : " << tPlayer.strJob << endl;
 				cout << "레벨 : " << tPlayer.iLevel <<
-					"\t경험치 : " << tPlayer.iExp << endl;
+					"\t경험치 : " << tPlayer.iExp << "/" << iLevelUpExp[tPlayer.iLevel - 1] << endl;
 				cout << "공격력  : " << tPlayer.iAttackMin <<
 					" - " << tPlayer.iAttackMax << "\t방어력 : " << tPlayer.iArmor << endl;
 				cout << "최대 체력 : " << tPlayer.iHPMax <<
