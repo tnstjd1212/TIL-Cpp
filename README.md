@@ -36,3 +36,6 @@ Complete text RPG
 
 ##20200114
 Study pointer, function
+
+##20200119
+Change TextRPG by using function
